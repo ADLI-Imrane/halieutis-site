@@ -1,0 +1,405 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Reels Section</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .video-reels-section {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        padding: 80px 20px;
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .video-reels-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 60px;
+        opacity: 0;
+        animation: fadeInUp 1s ease-out 0.2s forwards;
+    }
+
+    .section-title {
+        font-family: 'Georgia', serif;
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 300;
+        color: #ffffff;
+        margin-bottom: 20px;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+    }
+
+    .section-subtitle {
+        font-family: 'Arial', sans-serif;
+        font-size: clamp(1rem, 2vw, 1.25rem);
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 300;
+        letter-spacing: 0.5px;
+    }
+
+    .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .video-card {
+        position: relative;
+        aspect-ratio: 9/16;
+        border-radius: 20px;
+        overflow: hidden;
+        background: linear-gradient(45deg, #222, #333);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        opacity: 0;
+        transform: translateY(50px);
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    /* Added animation delays for up to 8 videos */
+    .video-card:nth-child(1) { animation-delay: 0.1s; }
+    .video-card:nth-child(2) { animation-delay: 0.2s; }
+    .video-card:nth-child(3) { animation-delay: 0.3s; }
+    .video-card:nth-child(4) { animation-delay: 0.4s; }
+    .video-card:nth-child(5) { animation-delay: 0.5s; }
+    .video-card:nth-child(6) { animation-delay: 0.6s; }
+    .video-card:nth-child(7) { animation-delay: 0.7s; }
+    .video-card:nth-child(8) { animation-delay: 0.8s; }
+
+    .video-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            45deg,
+            rgba(255, 215, 0, 0.1) 0%,
+            transparent 30%,
+            transparent 70%,
+            rgba(255, 255, 255, 0.05) 100%
+        );
+        z-index: 2;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .video-card:hover::before {
+        opacity: 1;
+    }
+
+    .video-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .video-element {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .video-card:hover .video-element {
+        transform: scale(1.05);
+    }
+
+    .video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            transparent 60%,
+            rgba(0, 0, 0, 0.3) 80%,
+            rgba(0, 0, 0, 0.7) 100%
+        );
+        z-index: 3;
+        pointer-events: none;
+    }
+
+    .play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 4;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .play-button:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .play-button::after {
+        content: '';
+        width: 0;
+        height: 0;
+        border-left: 20px solid #333;
+        border-top: 12px solid transparent;
+        border-bottom: 12px solid transparent;
+        margin-left: 4px;
+    }
+
+    .video-element:not([data-playing="true"]) + .video-overlay + .play-button {
+        opacity: 1;
+    }
+
+    .video-element[data-playing="true"] + .video-overlay + .play-button {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .video-reels-section {
+            padding: 60px 15px;
+        }
+
+        .video-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .play-button {
+            width: 60px;
+            height: 60px;
+        }
+
+        .play-button::after {
+            border-left: 16px solid #333;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .video-grid {
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .video-card {
+            max-width: 350px;
+            margin: 0 auto;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .video-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+</style>
+
+<section class="video-reels-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Mobilier de bureau avec élégance</h2>
+            <p class="section-subtitle">Découvrez le mobilier de bureau next-level au Maroc</p>
+        </div>
+        
+        <div class="video-grid">
+                        <div class="video-card">
+                <video class="video-element" muted="" loop="" autoplay="" playsinline="" preload="metadata" data-src="YOUR_VIDEO_LINK_5">
+                    <source src="https://cdn.shopify.com/videos/c/o/v/071eaf16e8684abaa5505ec4ab559d91.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay"></div>
+                <div class="play-button"></div>
+            </div>
+
+            <div class="video-card">
+                <video class="video-element" muted="" loop="" autoplay="" playsinline="" preload="metadata" data-src="YOUR_VIDEO_LINK_6">
+                    <source src="https://cdn.shopify.com/videos/c/o/v/f968665c83714d09af9bdeebd4d929d9.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay"></div>
+                <div class="play-button"></div>
+            </div>
+
+            <div class="video-card">
+                <video class="video-element" muted="" loop="" autoplay="" playsinline="" preload="metadata" data-src="YOUR_VIDEO_LINK_7">
+                    <source src="https://cdn.shopify.com/videos/c/o/v/414f577fb5a04efb89383c350e8eb763.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay"></div>
+                <div class="play-button"></div>
+            </div>
+
+            <div class="video-card">
+                <video class="video-element" muted="" loop="" autoplay="" playsinline="" preload="metadata" data-src="YOUR_VIDEO_LINK_8">
+                    <source src="https://cdn.shopify.com/videos/c/o/v/226cbc27fe5c4722a67a10ee2f907c1f.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay"></div>
+                <div class="play-button"></div>
+            </div>
+            <div class="video-card">
+                <video class="video-element" muted="" loop="" autoplay="" playsinline="" preload="metadata" data-src="https://cdn.shopify.com/videos/c/o/v/0796961fdd5948ed8e06c2f4a43bec11.mp4">
+                    <source src="https://cdn.shopify.com/videos/c/o/v/0796961fdd5948ed8e06c2f4a43bec11.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay"></div>
+                <div class="play-button"></div>
+            </div>
+
+            <div class="video-card">
+                <video class="video-element" muted="" loop="" autoplay="" playsinline="" preload="metadata" data-src="https://cdn.shopify.com/videos/c/o/v/365bfa079b7a4607a8f9f1d7ac7cdf11.mp4">
+                    <source src="https://cdn.shopify.com/videos/c/o/v/365bfa079b7a4607a8f9f1d7ac7cdf11.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay"></div>
+                <div class="play-button"></div>
+            </div>
+
+            <div class="video-card">
+                <video class="video-element" muted="" loop="" autoplay="" playsinline="" preload="metadata" data-src="https://cdn.shopify.com/videos/c/o/v/ddc491e12a3542dd86e1812e349e5374.mp4">
+                    <source src="https://cdn.shopify.com/videos/c/o/v/ddc491e12a3542dd86e1812e349e5374.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay"></div>
+                <div class="play-button"></div>
+            </div>
+
+            <div class="video-card">
+                <video class="video-element" muted="" loop="" autoplay="" playsinline="" preload="metadata" data-src="https://cdn.shopify.com/videos/c/o/v/ab56ad1f0bdd4f8cb2602077cabe6488.mp4">
+                    <source src="https://cdn.shopify.com/videos/c/o/v/ab56ad1f0bdd4f8cb2602077cabe6488.mp4" type="video/mp4">
+                </video>
+                <div class="video-overlay"></div>
+                <div class="play-button"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const videoCards = document.querySelectorAll('.video-card');
+        
+        videoCards.forEach(card => {
+            const video = card.querySelector('.video-element');
+            const playButton = card.querySelector('.play-button');
+            
+            // Handle play button click
+            playButton.addEventListener('click', function() {
+                if (video.paused) {
+                    // Pause all other videos
+                    videoCards.forEach(otherCard => {
+                        const otherVideo = otherCard.querySelector('.video-element');
+                        if (otherVideo !== video && !otherVideo.paused) {
+                            otherVideo.pause();
+                            otherVideo.setAttribute('data-playing', 'false');
+                        }
+                    });
+                    
+                    video.play();
+                    video.setAttribute('data-playing', 'true');
+                } else {
+                    video.pause();
+                    video.setAttribute('data-playing', 'false');
+                }
+            });
+            
+            // Handle video click to pause
+            video.addEventListener('click', function() {
+                if (!video.paused) {
+                    video.pause();
+                    video.setAttribute('data-playing', 'false');
+                }
+            });
+            
+            // Handle video end
+            video.addEventListener('ended', function() {
+                video.setAttribute('data-playing', 'false');
+            });
+            
+            // Intersection Observer for lazy loading
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const video = entry.target.querySelector('.video-element');
+                        if (video && video.getAttribute('data-src')) {
+                            video.src = video.getAttribute('data-src');
+                            video.load();
+                            video.removeAttribute('data-src');
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '50px'
+            });
+            
+            observer.observe(card);
+        });
+        
+        // Pause videos when they go out of view
+        const playingObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) {
+                    const video = entry.target.querySelector('.video-element');
+                    if (video && !video.paused) {
+                        video.pause();
+                        video.setAttribute('data-playing', 'false');
+                    }
+                }
+            });
+        }, {
+            threshold: 0.5
+        });
+        
+        videoCards.forEach(card => {
+            playingObserver.observe(card);
+        });
+    });
+</script>
