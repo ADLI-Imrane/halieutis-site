@@ -5,7 +5,7 @@ export default function Footer() {
     <footer>
       <div className="container">
         <div className="footer-logo">
-          <img src="https://xiiyhwhbdzkqmikbzquq.supabase.co/storage/v1/object/public/assets/logo.jpg" alt="Logo" />
+          <img src="/logo.png" alt="Halieutis Logo" />
           <span>Halieutis Club</span>
         </div>
         <p className="footer-text">

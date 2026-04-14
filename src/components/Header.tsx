@@ -4,7 +4,7 @@ export default function Header() {
   return (
     <nav>
       <div className="nav-brand">
-        <img className="nav-logo-img" src="https://xiiyhwhbdzkqmikbzquq.supabase.co/storage/v1/object/public/assets/logo.jpg" alt="Halieutis Logo" />
+        <img className="nav-logo-img" src="/logo.png" alt="Halieutis Logo" />
         <span className="nav-name">Halieutis</span>
       </div>
       <div className="nav-links">
