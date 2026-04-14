@@ -28,7 +28,7 @@ export default function About() {
           </div>
           <div className="about-visual">
             <div className="about-logo-wrap">
-              <img src="https://xiiyhwhbdzkqmikbzquq.supabase.co/storage/v1/object/public/assets/logo.jpg" alt="Logo Halieutis" />
+              <img src="/logo.png" alt="Logo Halieutis" />
             </div>
           </div>
         </div>
