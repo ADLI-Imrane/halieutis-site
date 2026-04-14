@@ -33,7 +33,9 @@ export default function Hero() {
     <section className="hero">
       <div className="hero-particles" ref={containerRef}></div>
       
-      <img className="hero-fst-logo" src="/fst-logo.png" alt="FST Tanger Logo" />
+      <div className="hero-fst-wrapper">
+        <img className="hero-fst-logo" src="/fst-logo.png" alt="FST Tanger Logo" />
+      </div>
       <img className="hero-logo" src="/logo.png" alt="Halieutis Logo" />
       
       <div className="hero-univ">
