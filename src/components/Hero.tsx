@@ -33,7 +33,8 @@ export default function Hero() {
     <section className="hero">
       <div className="hero-particles" ref={containerRef}></div>
       
-      <img className="hero-logo" src="https://xiiyhwhbdzkqmikbzquq.supabase.co/storage/v1/object/public/assets/logo.jpg" alt="Halieutis Logo" />
+      <img className="hero-fst-logo" src="/fst-logo.png" alt="FST Tanger Logo" />
+      <img className="hero-logo" src="/logo.png" alt="Halieutis Logo" />
       
       <div className="hero-univ">
         <GraduationCap className="w-5 h-5 text-aqua" />
