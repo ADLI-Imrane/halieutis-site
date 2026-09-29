@@ -1,0 +1,4 @@
+# Local secrets for `npm run dev`. Copy to .dev.vars (git-ignored).
+# Generate each with: openssl rand -hex 32   (the two must differ)
+SUBMIT_API_TOKEN=
+ADMIN_API_TOKEN=

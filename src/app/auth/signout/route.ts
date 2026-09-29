@@ -1,26 +1,18 @@
-import { createClient } from '@/lib/supabase-server'
+import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { SESSION_COOKIE } from '@/lib/admin-session'
 
-export async function POST(request: Request) {
+export async function POST() {
   return handleSignOut()
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   return handleSignOut()
 }
 
 async function handleSignOut() {
-  const supabase = await createClient()
-
-  // Check if a user's logged in
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (user) {
-    await supabase.auth.signOut()
-  }
+  ;(await cookies()).delete(SESSION_COOKIE)
 
   revalidatePath('/', 'layout')
   redirect('/dashboard/login')

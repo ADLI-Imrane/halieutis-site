@@ -1,39 +1,27 @@
 'use client'
 
 import { useState } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
 import { Lock, Loader2, ArrowLeft, User } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { login } from './actions';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    // On success the action redirects to /dashboard.
+    const result = await login(email, password);
 
-    if (error) {
-      setError("Identifiants invalides. Vérifiez votre email et mot de passe.");
+    if (result?.error) {
+      setError(result.error);
       setLoading(false);
-    } else {
-      router.push('/dashboard');
-      router.refresh();
     }
   };
 
