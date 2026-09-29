@@ -12,6 +12,7 @@ import {
   Box
 } from 'lucide-react';
 import Link from 'next/link';
+import { listSubmissions, type Submission } from '@/lib/submissions-api';
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -45,11 +46,13 @@ export default async function DashboardPage() {
     redirect('/dashboard/login');
   }
 
-  // Fetch submissions
-  const { data: submissions, error } = await supabase
-    .from('submissions')
-    .select('*')
-    .order('created_at', { ascending: false });
+  // Fetch submissions from D1 (through the submissions Worker)
+  let submissions: Submission[] | null = null;
+  try {
+    submissions = await listSubmissions();
+  } catch (err) {
+    console.error('Dashboard: loading submissions failed:', err instanceof Error ? err.message : err);
+  }
 
   return (
     <div className="admin-page">
@@ -75,13 +78,18 @@ export default async function DashboardPage() {
       </header>
 
       <main className="admin-grid">
-        {!submissions || submissions.length === 0 ? (
+        {!submissions ? (
+          <div className="admin-card max-w-none p-12 text-center text-red-400">
+            <Box size={48} className="mx-auto mb-4 opacity-20" />
+            <p>Impossible de charger les inscriptions. Réessayez dans quelques instants.</p>
+          </div>
+        ) : submissions.length === 0 ? (
           <div className="admin-card max-w-none p-12 text-center text-white/40">
             <Box size={48} className="mx-auto mb-4 opacity-20" />
             <p>Aucune inscription reçue pour le moment.</p>
           </div>
         ) : (
-          submissions.map((sub: any) => (
+          submissions.map((sub) => (
             <div key={sub.id} className="admin-leak-card">
               <div className="admin-leak-header">
                 <div className="admin-leak-user">
@@ -89,7 +97,7 @@ export default async function DashboardPage() {
                     <User size={20} />
                   </div>
                   <div>
-                    <div className="font-bold text-white">{sub.full_name}</div>
+                    <div className="font-bold text-white">{sub.name}</div>
                     <div className="admin-leak-email flex items-center gap-1">
                       <Mail size={12} />
                       {sub.email}

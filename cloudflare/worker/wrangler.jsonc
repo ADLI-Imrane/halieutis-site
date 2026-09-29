@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "halieutis-submissions-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "halieutis-submissions",
+      // Printed by `npx wrangler d1 create halieutis-submissions`. Not a secret.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ]
+  // Secrets (set with `npx wrangler secret put <NAME>`, never written here):
+  //   SUBMIT_API_TOKEN  lets the Next.js server create submissions
+  //   ADMIN_API_TOKEN   lets the Next.js server list submissions for the dashboard
+}
