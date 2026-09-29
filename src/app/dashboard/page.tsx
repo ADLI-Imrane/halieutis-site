@@ -1,4 +1,3 @@
-import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { 
@@ -12,37 +11,13 @@ import {
   Box
 } from 'lucide-react';
 import Link from 'next/link';
+import { SESSION_COOKIE, isValidSession } from '@/lib/admin-session';
 import { listSubmissions, type Submission } from '@/lib/submissions-api';
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
-  
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // sessions.
-          }
-        },
-      },
-    }
-  );
 
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
+  if (!isValidSession(cookieStore.get(SESSION_COOKIE)?.value)) {
     redirect('/dashboard/login');
   }
 
@@ -70,7 +45,8 @@ export default async function DashboardPage() {
             <Users size={16} className="inline mr-2" />
             {submissions?.length || 0} Inscriptions
           </div>
-          <Link href="/auth/signout" className="social-btn" style={{ background: 'rgba(255, 99, 71, 0.1)', color: '#ff6347', borderColor: 'rgba(255, 99, 71, 0.2)' }}>
+          {/* No prefetch: prefetching this link would sign the admin out. */}
+          <Link href="/auth/signout" prefetch={false} className="social-btn" style={{ background: 'rgba(255, 99, 71, 0.1)', color: '#ff6347', borderColor: 'rgba(255, 99, 71, 0.2)' }}>
             <LogOut size={16} />
             <span>Déconnexion</span>
           </Link>

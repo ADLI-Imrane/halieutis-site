@@ -10,7 +10,6 @@ Browser ──▶ Next.js on Vercel ──▶ Cloudflare Worker ──▶ Cloudf
             (server action,        (cloudflare/worker)    (halieutis-submissions)
              dashboard page)
                   │
-                  ├──▶ Supabase Auth   admin login only
                   └──▶ Resend          email notification for each new message
 ```
 
@@ -18,15 +17,19 @@ Browser ──▶ Next.js on Vercel ──▶ Cloudflare Worker ──▶ Cloudf
 - **Contact form** (`src/components/ContactForm.tsx`): calls the server action
   `submitForm` (`src/app/actions.ts`), which validates the input, stores it
   through the Worker, then emails the club through Resend.
-- **Dashboard** (`/dashboard`): protected by Supabase Auth (`src/proxy.ts` and
-  the page itself). Once the admin is signed in, the page loads the
-  submissions from the Worker on the server.
+- **Dashboard** (`/dashboard`): one admin account, whose email and password
+  are the Vercel variables `ADMIN_EMAIL` and `ADMIN_PASSWORD`
+  (`src/lib/admin-session.ts`). Signing in sets a signed, HttpOnly cookie
+  valid for 12 hours; `src/proxy.ts` and the page itself check it. Once the
+  admin is signed in, the page loads the submissions from the Worker on the
+  server. Changing `ADMIN_PASSWORD` (then redeploying) signs every open
+  session out.
 - **Submissions API** (`cloudflare/worker/`): the only code that touches the
   database. The browser never calls it; only the Next.js server does, with
   one of two bearer tokens:
   - `SUBMIT_API_TOKEN` can only **create** a submission (`POST /submissions`).
   - `ADMIN_API_TOKEN` can **list** submissions (`GET /submissions`). It is
-    only sent after the Supabase login check passes.
+    only sent after the admin session check passes.
 
   The Worker validates every field, uses parameterized SQL only, sends no CORS
   headers, and limits each visitor IP to 5 messages per 10 minutes. It stores
@@ -34,14 +37,14 @@ Browser ──▶ Next.js on Vercel ──▶ Cloudflare Worker ──▶ Cloudf
 - **Database** (Cloudflare D1, binding `DB`): one table, `submissions`,
   defined by the migrations in `cloudflare/worker/migrations/`.
 
-Supabase stores no submissions any more; it is used only to sign the admin in.
+The site used Supabase before; it no longer depends on it for anything.
 
 ## Environment variables
 
 | Variable | Where | Public? | Purpose |
 | --- | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Vercel | yes (inlined in the browser bundle) | Supabase Auth |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Vercel | yes (inlined in the browser bundle) | Supabase Auth |
+| `ADMIN_EMAIL` | Vercel | **no** | admin login email |
+| `ADMIN_PASSWORD` | Vercel | **no** | admin login password, at least 12 characters |
 | `SUBMISSIONS_API_URL` | Vercel | **no** | Worker URL, e.g. `https://halieutis-submissions-api.<subdomain>.workers.dev` |
 | `SUBMIT_API_TOKEN` | Vercel **and** Worker secret | **no** | lets the site create submissions |
 | `ADMIN_API_TOKEN` | Vercel **and** Worker secret | **no** | lets the dashboard list submissions |
@@ -50,9 +53,6 @@ Supabase stores no submissions any more; it is used only to sign the admin in.
 The two tokens must be different, at least 32 characters, and identical on
 both sides. Generate each with `openssl rand -hex 32`. Never give a secret a
 `NEXT_PUBLIC_` prefix: that would publish it in the browser bundle.
-
-The Supabase variables are also needed **at build time** (the login page is
-prerendered).
 
 ## Local development
 
@@ -107,8 +107,9 @@ Run these from `cloudflare/worker/`, logged in with `npx wrangler login`.
 ### First time: Vercel
 
 In Project Settings → Environment Variables, for Production (and Preview if
-used), add `SUBMISSIONS_API_URL`, `SUBMIT_API_TOKEN` and `ADMIN_API_TOKEN`,
-alongside the existing Supabase and Resend variables. Then redeploy.
+used), add `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SUBMISSIONS_API_URL`,
+`SUBMIT_API_TOKEN` and `ADMIN_API_TOKEN`, alongside `RESEND_API_KEY`. Mark the
+secrets as Sensitive. Then redeploy.
 
 ### Later changes
 
